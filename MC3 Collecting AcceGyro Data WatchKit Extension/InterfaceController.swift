@@ -21,20 +21,28 @@ class InterfaceController: WKInterfaceController {
     var dataAcceArray:[Dictionary<String, AnyObject>] =  Array()
     var dataGyroArray:[Dictionary<String, AnyObject>] =  Array()
     var dataMotionArray:[Dictionary<String, AnyObject>] =  Array()
+    var locationManager = CLLocationManager()
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
+        print("awake")
         
         // Configure interface objects here.
+        
+        locationManager.allowsBackgroundLocationUpdates = true
     }
     
     override func willActivate() {
         // This method is called when watch view controller is about to be visible to user
         super.willActivate()
+        print("willActivate")
         
         wcSession = WCSession.default
         wcSession.delegate = self
         wcSession.activate()
+        
+        
+//        locationManager.allowsBackgroundLocationUpdates = true
         
 //        print(motion.isDeviceMotionAvailable ? "Motion available" : "Motion NOT available")
 //        print(motion.isGyroAvailable ? "Gyro available" : "Gyro NOT available")
@@ -43,10 +51,25 @@ class InterfaceController: WKInterfaceController {
     }
     
     override func didDeactivate() {
+        print("didDeactivate")
         // This method is called when watch view controller is no longer visible
         super.didDeactivate()
     }
     
+//    @available(watchOSApplicationExtension 2.2, *)
+//    func session(session: WCSession, activationDidCompleteWithState activationState: WCSessionActivationState, error: NSError?) {
+//        if activationState == WCSessionActivationState.activated {
+//            NSLog("Activated")
+//        }
+//
+//        if activationState == WCSessionActivationState.inactive {
+//            NSLog("Inactive")
+//        }
+//
+//        if activationState == WCSessionActivationState.notActivated {
+//            NSLog("NotActivated")
+//        }
+//    }
     
     
 }
@@ -65,6 +88,7 @@ extension InterfaceController: WCSessionDelegate {
             labelInfo.setText("Recording data...")
 //            startGyroscope()
 //            startAccelerometer()
+            dataMotionArray.removeAll()
             startDeviceMotion()
             break
         case "STOP":
@@ -75,6 +99,7 @@ extension InterfaceController: WCSessionDelegate {
             print("SIZE: \(dataMotionArray.count)")
             let csvStr = generateCsvFormat(motionArray: dataMotionArray)
             sendMessage(strMsg: csvStr)
+            dataMotionArray.removeAll()
             break
         default:
             labelInfo.setText("Instruksi naon iyee...")
@@ -138,7 +163,7 @@ extension InterfaceController {
         motion.deviceMotionUpdateInterval  = 1.0 / 50.0
         motion.startDeviceMotionUpdates(to: OperationQueue.current!) {
             (data, error) in
-            print("Motion")
+//            print("Motion")
             print(data as Any)
             if let trueData =  data {
                 
