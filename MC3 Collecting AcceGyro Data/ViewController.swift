@@ -24,6 +24,10 @@ class ViewController: UIViewController, WCSessionDelegate {
         wcSession.delegate = self
         wcSession.activate()
         
+        initialCsvString()
+    }
+    
+    func initialCsvString(){
         csvString = "\("Time"),\("Accelerometer X"),\("Accelerometer Y"),\("Accelerometer Z"),\("Gyroscope X"),\("Gyroscope Y"),\("Gyroscope Z")\n"
     }
     
@@ -58,6 +62,7 @@ class ViewController: UIViewController, WCSessionDelegate {
 //            exportCsv(csvStr: csvString)
         } else {
             instruction = "START"
+            initialCsvString()
             button.setTitle("STOP", for: .normal)
         }
         

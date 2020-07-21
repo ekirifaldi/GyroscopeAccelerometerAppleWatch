@@ -71,6 +71,7 @@ extension InterfaceController: WCSessionDelegate {
             labelInfo.setText("Stopping...")
             stopUpdates()
             self.sendMessage(strMsg: "LAST")
+            labelInfo.setText("Waiting...")
 //            print("SIZE: \(dataAcceArray.count) ===== \(dataGyroArray.count)")
 //            let csvStr = generateCsvFormat(acceArray: dataAcceArray, gyroArray: dataGyroArray)
 //            print("SIZE: \(dataMotionArray.count)")
@@ -203,7 +204,6 @@ extension InterfaceController {
             
         }
         print("Sent")
-        labelInfo.setText("Waiting...")
     }
     
     func getNowTime() -> String {
