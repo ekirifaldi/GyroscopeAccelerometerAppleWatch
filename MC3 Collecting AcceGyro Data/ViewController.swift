@@ -31,7 +31,7 @@ class ViewController: UIViewController, WCSessionDelegate {
         csvString = csvString.appending(data)
     }
     
-    func createCsv(csvStr: String){
+    func exportCsv(csvStr: String){
         let fileManager = FileManager.default
         do {
             let path = try fileManager.url(for: .documentDirectory, in: .allDomainsMask, appropriateFor: nil, create: false)
@@ -55,7 +55,7 @@ class ViewController: UIViewController, WCSessionDelegate {
         if isRecording {
             instruction = "STOP"
             button.setTitle("START", for: .normal)
-            createCsv(csvStr: csvString)
+            exportCsv(csvStr: csvString)
         } else {
             instruction = "START"
             button.setTitle("STOP", for: .normal)
