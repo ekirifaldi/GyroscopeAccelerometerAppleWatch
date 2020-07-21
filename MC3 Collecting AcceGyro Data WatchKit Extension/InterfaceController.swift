@@ -72,9 +72,9 @@ extension InterfaceController: WCSessionDelegate {
             stopUpdates()
 //            print("SIZE: \(dataAcceArray.count) ===== \(dataGyroArray.count)")
 //            let csvStr = generateCsvFormat(acceArray: dataAcceArray, gyroArray: dataGyroArray)
-            print("SIZE: \(dataMotionArray.count)")
-            let csvStr = generateCsvFormat(motionArray: dataMotionArray)
-            sendMessage(strMsg: csvStr)
+//            print("SIZE: \(dataMotionArray.count)")
+//            let csvStr = generateCsvFormat(motionArray: dataMotionArray)
+//            sendMessage(strMsg: csvStr)
             break
         default:
             labelInfo.setText("Instruksi naon iyee...")
@@ -91,48 +91,6 @@ extension InterfaceController: WCSessionDelegate {
 //MARK: - CoreMotion
 extension InterfaceController {
     
-    func startGyroscope(){
-        print("Start Gyroscope")
-        motion.gyroUpdateInterval = 0.5
-        motion.startGyroUpdates(to: OperationQueue.current!) {
-            (data, error) in
-            print("Gyro")
-            print(data as Any)
-            if let trueData =  data {
-                
-                var dct = Dictionary<String, AnyObject>()
-                dct.updateValue(self.getNowTime() as AnyObject, forKey: "GyroTime")
-                dct.updateValue(trueData.rotationRate.x as AnyObject, forKey: "GyroX")
-                dct.updateValue(trueData.rotationRate.y as AnyObject, forKey: "GyroY")
-                dct.updateValue(trueData.rotationRate.z as AnyObject, forKey: "GyroZ")
-                self.dataGyroArray.append(dct)
-            }
-        }
-        return
-    }
-    
-    
-    func startAccelerometer() {
-        print("Start Accelerometer")
-        motion.accelerometerUpdateInterval = 0.5
-        motion.startAccelerometerUpdates(to: OperationQueue.current!) {
-            (data, error) in
-            print("Acce")
-            print(data as Any)
-            if let trueData =  data {
-                
-                var dct = Dictionary<String, AnyObject>()
-                dct.updateValue(self.getNowTime() as AnyObject, forKey: "AcceTime")
-                dct.updateValue(trueData.acceleration.x as AnyObject, forKey: "AcceX")
-                dct.updateValue(trueData.acceleration.y as AnyObject, forKey: "AcceY")
-                dct.updateValue(trueData.acceleration.z as AnyObject, forKey: "AcceZ")
-                self.dataAcceArray.append(dct)
-            }
-        }
-        
-        return
-    }
-    
     func startDeviceMotion(){
         print("Start DeviceMotion")
         motion.deviceMotionUpdateInterval  = 1.0 / 50.0
@@ -142,20 +100,68 @@ extension InterfaceController {
             print(data as Any)
             if let trueData =  data {
                 
-                var dct = Dictionary<String, AnyObject>()
-                dct.updateValue(self.getNowTime() as AnyObject, forKey: "Time")
-                dct.updateValue(trueData.userAcceleration.x as AnyObject, forKey: "AcceX")
-                dct.updateValue(trueData.userAcceleration.y as AnyObject, forKey: "AcceY")
-                dct.updateValue(trueData.userAcceleration.z as AnyObject, forKey: "AcceZ")
-                dct.updateValue(trueData.rotationRate.x as AnyObject, forKey: "GyroX")
-                dct.updateValue(trueData.rotationRate.y as AnyObject, forKey: "GyroY")
-                dct.updateValue(trueData.rotationRate.z as AnyObject, forKey: "GyroZ")
-                self.dataMotionArray.append(dct)
+                let csvString = "\(self.getNowTime()),\(trueData.userAcceleration.x),\(trueData.userAcceleration.y),\(trueData.userAcceleration.z),\(trueData.rotationRate.x),\(trueData.rotationRate.y),\(trueData.rotationRate.z)\n"
+                
+                self.sendMessage(strMsg: csvString)
+                
+//                var dct = Dictionary<String, AnyObject>()
+//                dct.updateValue(self.getNowTime() as AnyObject, forKey: "Time")
+//                dct.updateValue(trueData.userAcceleration.x as AnyObject, forKey: "AcceX")
+//                dct.updateValue(trueData.userAcceleration.y as AnyObject, forKey: "AcceY")
+//                dct.updateValue(trueData.userAcceleration.z as AnyObject, forKey: "AcceZ")
+//                dct.updateValue(trueData.rotationRate.x as AnyObject, forKey: "GyroX")
+//                dct.updateValue(trueData.rotationRate.y as AnyObject, forKey: "GyroY")
+//                dct.updateValue(trueData.rotationRate.z as AnyObject, forKey: "GyroZ")
+//                self.dataMotionArray.append(dct)
                 
             }
         }
         return
     }
+    
+//    func startGyroscope(){
+//        print("Start Gyroscope")
+//        motion.gyroUpdateInterval = 0.5
+//        motion.startGyroUpdates(to: OperationQueue.current!) {
+//            (data, error) in
+//            print("Gyro")
+//            print(data as Any)
+//            if let trueData =  data {
+//
+//                var dct = Dictionary<String, AnyObject>()
+//                dct.updateValue(self.getNowTime() as AnyObject, forKey: "GyroTime")
+//                dct.updateValue(trueData.rotationRate.x as AnyObject, forKey: "GyroX")
+//                dct.updateValue(trueData.rotationRate.y as AnyObject, forKey: "GyroY")
+//                dct.updateValue(trueData.rotationRate.z as AnyObject, forKey: "GyroZ")
+//                self.dataGyroArray.append(dct)
+//            }
+//        }
+//        return
+//    }
+//
+//
+//    func startAccelerometer() {
+//        print("Start Accelerometer")
+//        motion.accelerometerUpdateInterval = 0.5
+//        motion.startAccelerometerUpdates(to: OperationQueue.current!) {
+//            (data, error) in
+//            print("Acce")
+//            print(data as Any)
+//            if let trueData =  data {
+//
+//                var dct = Dictionary<String, AnyObject>()
+//                dct.updateValue(self.getNowTime() as AnyObject, forKey: "AcceTime")
+//                dct.updateValue(trueData.acceleration.x as AnyObject, forKey: "AcceX")
+//                dct.updateValue(trueData.acceleration.y as AnyObject, forKey: "AcceY")
+//                dct.updateValue(trueData.acceleration.z as AnyObject, forKey: "AcceZ")
+//                self.dataAcceArray.append(dct)
+//            }
+//        }
+//
+//        return
+//    }
+    
+
     
     func stopUpdates() {
         if motion.isDeviceMotionAvailable {
@@ -165,28 +171,28 @@ extension InterfaceController {
         }
     }
     
-    func generateCsvFormat(acceArray:[Dictionary<String, AnyObject>], gyroArray:[Dictionary<String, AnyObject>]) -> String {
-        var csvString = "\("Time"),\("Accelerometer X"),\("Accelerometer Y"),\("Accelerometer Z")\n"
-        for dct in acceArray {
-            csvString = csvString.appending("\(String(describing: dct["AcceTime"]!)),\(String(describing: dct["AcceX"]!)),\(String(describing: dct["AcceY"]!)),\(String(describing: dct["AcceZ"]!))\n")
-        }
-        
-        csvString = "\(csvString)\n\n\("TimeDMotion"),\("Gyroscope X"),\("Gyroscope Y"),\("Gyroscope Z")\n"
-        for dct2 in gyroArray {
-            csvString = csvString.appending("\(String(describing: dct2["GyroTime"]!)),\(String(describing: dct2["GyroX"]!)),\(String(describing: dct2["GyroY"]!)),\(String(describing: dct2["GyroZ"]!))\n")
-        }
-        
-        return csvString
-    }
+//    func generateCsvFormat(acceArray:[Dictionary<String, AnyObject>], gyroArray:[Dictionary<String, AnyObject>]) -> String {
+//        var csvString = "\("Time"),\("Accelerometer X"),\("Accelerometer Y"),\("Accelerometer Z")\n"
+//        for dct in acceArray {
+//            csvString = csvString.appending("\(String(describing: dct["AcceTime"]!)),\(String(describing: dct["AcceX"]!)),\(String(describing: dct["AcceY"]!)),\(String(describing: dct["AcceZ"]!))\n")
+//        }
+//
+//        csvString = "\(csvString)\n\n\("TimeDMotion"),\("Gyroscope X"),\("Gyroscope Y"),\("Gyroscope Z")\n"
+//        for dct2 in gyroArray {
+//            csvString = csvString.appending("\(String(describing: dct2["GyroTime"]!)),\(String(describing: dct2["GyroX"]!)),\(String(describing: dct2["GyroY"]!)),\(String(describing: dct2["GyroZ"]!))\n")
+//        }
+//
+//        return csvString
+//    }
     
-    func generateCsvFormat(motionArray:[Dictionary<String, AnyObject>]) -> String {
-        var csvString = "\("Time"),\("Accelerometer X"),\("Accelerometer Y"),\("Accelerometer Z"),\("Gyroscope X"),\("Gyroscope Y"),\("Gyroscope Z")\n"
-        for dct in motionArray {
-            csvString = csvString.appending("\(String(describing: dct["Time"]!)),\(String(describing: dct["AcceX"]!)),\(String(describing: dct["AcceY"]!)),\(String(describing: dct["AcceZ"]!)),\(String(describing: dct["GyroX"]!)),\(String(describing: dct["GyroY"]!)),\(String(describing: dct["GyroZ"]!))\n")
-        }
-        
-        return csvString
-    }
+//    func generateCsvFormat(motionArray:[Dictionary<String, AnyObject>]) -> String {
+//        var csvString = "\("Time"),\("Accelerometer X"),\("Accelerometer Y"),\("Accelerometer Z"),\("Gyroscope X"),\("Gyroscope Y"),\("Gyroscope Z")\n"
+//        for dct in motionArray {
+//            csvString = csvString.appending("\(String(describing: dct["Time"]!)),\(String(describing: dct["AcceX"]!)),\(String(describing: dct["AcceY"]!)),\(String(describing: dct["AcceZ"]!)),\(String(describing: dct["GyroX"]!)),\(String(describing: dct["GyroY"]!)),\(String(describing: dct["GyroZ"]!))\n")
+//        }
+//
+//        return csvString
+//    }
     
     func sendMessage(strMsg: String){
         let message = ["messageFromWatch":strMsg]

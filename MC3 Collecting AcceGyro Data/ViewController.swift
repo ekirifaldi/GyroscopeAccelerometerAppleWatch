@@ -15,6 +15,7 @@ class ViewController: UIViewController, WCSessionDelegate {
     
     var wcSession : WCSession! = nil
     var isRecording = false
+    var csvString = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,6 +23,12 @@ class ViewController: UIViewController, WCSessionDelegate {
         wcSession = WCSession.default
         wcSession.delegate = self
         wcSession.activate()
+        
+        csvString = "\("Time"),\("Accelerometer X"),\("Accelerometer Y"),\("Accelerometer Z"),\("Gyroscope X"),\("Gyroscope Y"),\("Gyroscope Z")\n"
+    }
+    
+    func prepareCsv(data: String){
+        csvString = csvString.appending(data)
     }
     
     func createCsv(csvStr: String){
@@ -48,6 +55,7 @@ class ViewController: UIViewController, WCSessionDelegate {
         if isRecording {
             instruction = "STOP"
             button.setTitle("START", for: .normal)
+            createCsv(csvStr: csvString)
         } else {
             instruction = "START"
             button.setTitle("STOP", for: .normal)
@@ -76,9 +84,10 @@ class ViewController: UIViewController, WCSessionDelegate {
     
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
         
-        let text = message["messageFromWatch"] as! String
+        let data = message["messageFromWatch"] as! String
         
-        createCsv(csvStr: text)
+        prepareCsv(data: data)
+//        createCsv(csvStr: text)
         
     }
     
