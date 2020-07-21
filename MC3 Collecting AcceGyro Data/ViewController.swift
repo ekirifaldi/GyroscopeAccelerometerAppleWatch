@@ -36,7 +36,7 @@ class ViewController: UIViewController, WCSessionDelegate {
         do {
             let path = try fileManager.url(for: .documentDirectory, in: .allDomainsMask, appropriateFor: nil, create: false)
             let fileURL = path.appendingPathComponent("CSVRecAcceGyro.csv")
-            print(fileURL)
+//            print(fileURL)
             try csvStr.write(to: fileURL, atomically: true, encoding: .utf8)
             let items = [fileURL]
             let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
@@ -55,7 +55,7 @@ class ViewController: UIViewController, WCSessionDelegate {
         if isRecording {
             instruction = "STOP"
             button.setTitle("START", for: .normal)
-            exportCsv(csvStr: csvString)
+//            exportCsv(csvStr: csvString)
         } else {
             instruction = "START"
             button.setTitle("STOP", for: .normal)
@@ -86,8 +86,11 @@ class ViewController: UIViewController, WCSessionDelegate {
         
         let data = message["messageFromWatch"] as! String
         
-        prepareCsv(data: data)
-//        createCsv(csvStr: text)
+        if data != "LAST" {
+            prepareCsv(data: data)
+        } else {
+            exportCsv(csvStr: csvString)
+        }
         
     }
     

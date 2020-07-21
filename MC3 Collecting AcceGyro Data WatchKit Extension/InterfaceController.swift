@@ -70,6 +70,7 @@ extension InterfaceController: WCSessionDelegate {
         case "STOP":
             labelInfo.setText("Stopping...")
             stopUpdates()
+            self.sendMessage(strMsg: "LAST")
 //            print("SIZE: \(dataAcceArray.count) ===== \(dataGyroArray.count)")
 //            let csvStr = generateCsvFormat(acceArray: dataAcceArray, gyroArray: dataGyroArray)
 //            print("SIZE: \(dataMotionArray.count)")
