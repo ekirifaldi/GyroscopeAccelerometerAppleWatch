@@ -26,7 +26,7 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>WKCompanionAppBundleIdentifier</key>
-	<string>com.ekirifaldi.MC3-Collecting-AcceGyro-Data</string>
+	<string>com.ekirifaldi.MC3-Collecting-AcceGyro</string>
 	<key>WKWatchKitApp</key>
 	<true/>
 </dict>

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3D5E756824C9D2ED005F260C /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D5E756724C9D2ED005F260C /* HealthKit.framework */; };
+		3D5E756B24C9D3B5005F260C /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D5E756A24C9D3B5005F260C /* HealthKit.framework */; };
 		3D8C447D24C46CC8006E0F84 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8C447C24C46CC8006E0F84 /* AppDelegate.swift */; };
 		3D8C447F24C46CC8006E0F84 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8C447E24C46CC8006E0F84 /* SceneDelegate.swift */; };
 		3D8C448124C46CC8006E0F84 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8C448024C46CC8006E0F84 /* ViewController.swift */; };
@@ -66,6 +68,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3D5E756524C9D2ED005F260C /* MC3 Collecting AcceGyro Data.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "MC3 Collecting AcceGyro Data.entitlements"; sourceTree = "<group>"; };
+		3D5E756724C9D2ED005F260C /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
+		3D5E756924C9D3B5005F260C /* MC3 Collecting AcceGyro Data WatchKit Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "MC3 Collecting AcceGyro Data WatchKit Extension.entitlements"; sourceTree = "<group>"; };
+		3D5E756A24C9D3B5005F260C /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS6.2.sdk/System/Library/Frameworks/HealthKit.framework; sourceTree = DEVELOPER_DIR; };
 		3D8C447924C46CC8006E0F84 /* MC3 Collecting AcceGyro Data.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MC3 Collecting AcceGyro Data.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D8C447C24C46CC8006E0F84 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3D8C447E24C46CC8006E0F84 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -92,6 +98,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3D5E756824C9D2ED005F260C /* HealthKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,12 +106,22 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3D5E756B24C9D3B5005F260C /* HealthKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3D5E756624C9D2ED005F260C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3D5E756A24C9D3B5005F260C /* HealthKit.framework */,
+				3D5E756724C9D2ED005F260C /* HealthKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		3D8C447024C46CC8006E0F84 = {
 			isa = PBXGroup;
 			children = (
@@ -112,6 +129,7 @@
 				3D8C449124C46CC9006E0F84 /* MC3 Collecting AcceGyro Data WatchKit App */,
 				3D8C44A024C46CC9006E0F84 /* MC3 Collecting AcceGyro Data WatchKit Extension */,
 				3D8C447A24C46CC8006E0F84 /* Products */,
+				3D5E756624C9D2ED005F260C /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -128,6 +146,7 @@
 		3D8C447B24C46CC8006E0F84 /* MC3 Collecting AcceGyro Data */ = {
 			isa = PBXGroup;
 			children = (
+				3D5E756524C9D2ED005F260C /* MC3 Collecting AcceGyro Data.entitlements */,
 				3D8C447C24C46CC8006E0F84 /* AppDelegate.swift */,
 				3D8C447E24C46CC8006E0F84 /* SceneDelegate.swift */,
 				3D8C448024C46CC8006E0F84 /* ViewController.swift */,
@@ -152,6 +171,7 @@
 		3D8C44A024C46CC9006E0F84 /* MC3 Collecting AcceGyro Data WatchKit Extension */ = {
 			isa = PBXGroup;
 			children = (
+				3D5E756924C9D3B5005F260C /* MC3 Collecting AcceGyro Data WatchKit Extension.entitlements */,
 				3D8C44A124C46CC9006E0F84 /* InterfaceController.swift */,
 				3D8C44A324C46CC9006E0F84 /* ExtensionDelegate.swift */,
 				3D8C44A524C46CC9006E0F84 /* NotificationController.swift */,
@@ -471,6 +491,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				CODE_SIGN_ENTITLEMENTS = "MC3 Collecting AcceGyro Data WatchKit Extension/MC3 Collecting AcceGyro Data WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = WFP7XFVDQT;
 				INFOPLIST_FILE = "MC3 Collecting AcceGyro Data WatchKit Extension/Info.plist";
@@ -479,7 +500,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.ekirifaldi.MC3-Collecting-AcceGyro-Data.watchkitapp.watchkitextension";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.ekirifaldi.MC3-Collecting-AcceGyro.watchkitapp.watchkitextension";
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -493,6 +514,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				CODE_SIGN_ENTITLEMENTS = "MC3 Collecting AcceGyro Data WatchKit Extension/MC3 Collecting AcceGyro Data WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = WFP7XFVDQT;
 				INFOPLIST_FILE = "MC3 Collecting AcceGyro Data WatchKit Extension/Info.plist";
@@ -501,7 +523,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.ekirifaldi.MC3-Collecting-AcceGyro-Data.watchkitapp.watchkitextension";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.ekirifaldi.MC3-Collecting-AcceGyro.watchkitapp.watchkitextension";
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -520,7 +542,7 @@
 				DEVELOPMENT_TEAM = WFP7XFVDQT;
 				IBSC_MODULE = MC3_Collecting_AcceGyro_Data_WatchKit_Extension;
 				INFOPLIST_FILE = "MC3 Collecting AcceGyro Data WatchKit App/Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.ekirifaldi.MC3-Collecting-AcceGyro-Data.watchkitapp";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.ekirifaldi.MC3-Collecting-AcceGyro.watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -539,7 +561,7 @@
 				DEVELOPMENT_TEAM = WFP7XFVDQT;
 				IBSC_MODULE = MC3_Collecting_AcceGyro_Data_WatchKit_Extension;
 				INFOPLIST_FILE = "MC3 Collecting AcceGyro Data WatchKit App/Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.ekirifaldi.MC3-Collecting-AcceGyro-Data.watchkitapp";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.ekirifaldi.MC3-Collecting-AcceGyro.watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -553,6 +575,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "MC3 Collecting AcceGyro Data/MC3 Collecting AcceGyro Data.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = WFP7XFVDQT;
 				INFOPLIST_FILE = "MC3 Collecting AcceGyro Data/Info.plist";
@@ -560,7 +583,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.ekirifaldi.MC3-Collecting-AcceGyro-Data";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.ekirifaldi.MC3-Collecting-AcceGyro";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -571,6 +594,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "MC3 Collecting AcceGyro Data/MC3 Collecting AcceGyro Data.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = WFP7XFVDQT;
 				INFOPLIST_FILE = "MC3 Collecting AcceGyro Data/Info.plist";
@@ -578,7 +602,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.ekirifaldi.MC3-Collecting-AcceGyro-Data";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.ekirifaldi.MC3-Collecting-AcceGyro";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

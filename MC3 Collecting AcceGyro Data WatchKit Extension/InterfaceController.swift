@@ -10,24 +10,31 @@ import WatchKit
 import Foundation
 import WatchConnectivity
 import CoreMotion
+import HealthKit
 
 
 class InterfaceController: WKInterfaceController {
     
     @IBOutlet weak var labelInfo: WKInterfaceLabel!
+    @IBOutlet weak var labelHeart: WKInterfaceLabel!
+    @IBOutlet weak var button: WKInterfaceButton!
     
     var wcSession : WCSession!
     var motion = CMMotionManager()
     var dataMotionArray:[Dictionary<String, AnyObject>] =  Array()
-    var locationManager = CLLocationManager()
+    
+    //For workout session
+    let healthStore = HKHealthStore()
+    var session: HKWorkoutSession?
+    var currentQuery: HKQuery?
+    
+    var isRecording = false
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
         print("awake")
         
         // Configure interface objects here.
-        
-        locationManager.allowsBackgroundLocationUpdates = true
     }
     
     override func willActivate() {
@@ -39,19 +46,44 @@ class InterfaceController: WKInterfaceController {
         wcSession.delegate = self
         wcSession.activate()
         
+        //Check HealthStore
+        guard HKHealthStore.isHealthDataAvailable() == true else {
+            print("Health Data Not Avaliable")
+            return
+        }
         
-//        locationManager.allowsBackgroundLocationUpdates = true
+        //        locationManager.allowsBackgroundLocationUpdates = true
         
-//        print(motion.isDeviceMotionAvailable ? "Motion available" : "Motion NOT available")
-//        print(motion.isGyroAvailable ? "Gyro available" : "Gyro NOT available")
-//        print(motion.isAccelerometerAvailable ? "Accel available" : "Accel NOT available")
-//        print(motion.isMagnetometerAvailable ? "Mag available" : "Mag NOT available")
+        //        print(motion.isDeviceMotionAvailable ? "Motion available" : "Motion NOT available")
+        //        print(motion.isGyroAvailable ? "Gyro available" : "Gyro NOT available")
+        //        print(motion.isAccelerometerAvailable ? "Accel available" : "Accel NOT available")
+        //        print(motion.isMagnetometerAvailable ? "Mag available" : "Mag NOT available")
     }
     
     override func didDeactivate() {
         print("didDeactivate")
         // This method is called when watch view controller is no longer visible
         super.didDeactivate()
+    }
+    
+    @IBAction func btnPressed() {
+        if(!isRecording){
+            let stopTitle = NSMutableAttributedString(string: "Stop Recording")
+            stopTitle.setAttributes([NSAttributedString.Key.foregroundColor: UIColor.red], range: NSMakeRange(0, stopTitle.length))
+            button.setAttributedTitle(stopTitle)
+            isRecording = true
+            startWorkout() //Start workout session/healthkit streaming
+        }else{
+            let exitTitle = NSMutableAttributedString(string: "Start Recording")
+            exitTitle.setAttributes([NSAttributedString.Key.foregroundColor: UIColor.green], range: NSMakeRange(0, exitTitle.length))
+            button.setAttributedTitle(exitTitle)
+            isRecording = false
+            //            healthStore.end(session!)
+            session?.stopActivity(with: Date())
+            labelHeart.setText("Heart Rate")
+            
+        }
+        
     }
     
 }
@@ -99,7 +131,7 @@ extension InterfaceController {
         motion.deviceMotionUpdateInterval  = 1.0 / 50.0
         motion.startDeviceMotionUpdates(to: OperationQueue.current!) {
             (data, error) in
-//            print("Motion")
+            //            print("Motion")
             print(data as Any)
             if let trueData =  data {
                 
@@ -120,9 +152,9 @@ extension InterfaceController {
     
     func stopUpdates() {
         if motion.isDeviceMotionAvailable {
-//            motion.stopGyroUpdates()
+            //            motion.stopGyroUpdates()
             motion.stopDeviceMotionUpdates()
-//            motion.stopAccelerometerUpdates()
+            //            motion.stopAccelerometerUpdates()
         }
     }
     
@@ -156,4 +188,77 @@ extension InterfaceController {
         let strDate = "\(hour):\(minutes):\(seconds).\(nanoseconds)"
         return strDate
     }
+}
+
+extension InterfaceController: HKWorkoutSessionDelegate{
+    func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {
+        print("State: \(toState.rawValue)")
+        switch toState {
+        case .running:
+            print(date)
+            if let query = heartRateQuery(date){
+                self.currentQuery = query
+                healthStore.execute(query)
+            }
+        //Execute Query
+        case .stopped: //sebelumnya .ended
+            //Stop Query
+            print("STOP: \(date)")
+            healthStore.stop(self.currentQuery!)
+            session?.end()
+            session = nil
+        default:
+            print("Unexpected state: \(toState.rawValue)")
+        }
+    }
+    
+    func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {
+        //Do Nothing
+    }
+    
+    func startWorkout(){
+        // If a workout has already been started, do nothing.
+        if (session != nil) {
+            return
+        }
+        // Configure the workout session.
+        let workoutConfiguration = HKWorkoutConfiguration()
+        workoutConfiguration.activityType = .badminton
+        workoutConfiguration.locationType = .indoor
+        
+        do {
+            session = try HKWorkoutSession(healthStore: healthStore, configuration: workoutConfiguration)
+            session?.delegate = self
+        } catch {
+            fatalError("Unable to create workout session")
+        }
+        
+        
+        session?.startActivity(with: Date())
+        print("Start Workout Session")
+    }
+    
+    func heartRateQuery(_ startDate: Date) -> HKQuery? {
+        let quantityType = HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.heartRate)
+        let datePredicate = HKQuery.predicateForSamples(withStart: startDate, end: nil, options: .strictEndDate)
+        let predicate = NSCompoundPredicate(andPredicateWithSubpredicates:[datePredicate])
+        
+        let heartRateQuery = HKAnchoredObjectQuery(type: quantityType!, predicate: predicate, anchor: nil, limit: Int(HKObjectQueryNoLimit)) { (query, sampleObjects, deletedObjects, newAnchor, error) -> Void in
+            //Do nothing
+        }
+        
+        heartRateQuery.updateHandler = {(query, samples, deleteObjects, newAnchor, error) -> Void in
+            guard let samples = samples as? [HKQuantitySample] else {return}
+            DispatchQueue.main.async {
+                guard let sample = samples.first else { return }
+                let value = sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
+                print("This line is executed!")
+                self.labelHeart.setText(String(UInt16(value))) //Update label
+            }
+            
+        }
+        
+        return heartRateQuery
+    }
+    
 }
