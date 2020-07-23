@@ -42,8 +42,6 @@ class ViewController: UIViewController, WCSessionDelegate {
     }
     
     @IBAction func btnStartPressed(_ sender: UIButton) {
-//        isRecording = !isRecording
-        
         var instruction = "empty"
         if isRecording {
             instruction = "STOP"
