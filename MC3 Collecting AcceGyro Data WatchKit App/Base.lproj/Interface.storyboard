@@ -11,9 +11,19 @@
             <objects>
                 <controller id="AgC-eL-Hgc" customClass="InterfaceController" customModule="MC3_Collecting_AcceGyro_Data_WatchKit_App" customModuleProvider="target">
                     <items>
-                        <label width="136" height="170" alignment="left" text="Waiting..." textAlignment="center" numberOfLines="0" id="ZBw-vv-aOU"/>
+                        <label width="136" alignment="left" text="Heart Rate" textAlignment="center" id="u3H-iK-FfL">
+                            <color key="textColor" red="1" green="0.027852097602739725" blue="0.99999129772186279" alpha="0.84705882352941175" colorSpace="calibratedRGB"/>
+                        </label>
+                        <button width="1" alignment="left" title="Button" id="gTY-eQ-nL2">
+                            <connections>
+                                <action selector="btnPressed" destination="AgC-eL-Hgc" id="qB7-5O-tBY"/>
+                            </connections>
+                        </button>
+                        <label width="136" height="50" alignment="left" text="Waiting..." textAlignment="center" numberOfLines="0" id="ZBw-vv-aOU"/>
                     </items>
                     <connections>
+                        <outlet property="button" destination="gTY-eQ-nL2" id="85O-C6-ogk"/>
+                        <outlet property="labelHeart" destination="u3H-iK-FfL" id="VH1-GC-vpY"/>
                         <outlet property="labelInfo" destination="ZBw-vv-aOU" id="RgV-J0-qXU"/>
                     </connections>
                 </controller>

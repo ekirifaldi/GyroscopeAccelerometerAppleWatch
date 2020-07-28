@@ -8,10 +8,13 @@
 
 import UIKit
 import WatchConnectivity
+import HealthKit
 
 class ViewController: UIViewController, WCSessionDelegate {
     
     @IBOutlet weak var button: UIButton!
+    
+    let healthStore = HKHealthStore()
     
     var wcSession : WCSession! = nil
     var isRecording = false
@@ -22,6 +25,18 @@ class ViewController: UIViewController, WCSessionDelegate {
         wcSession = WCSession.default
         wcSession.delegate = self
         wcSession.activate()
+        
+        let allTypes = Set([HKObjectType.workoutType(),
+                            HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!,
+                            HKObjectType.quantityType(forIdentifier: .distanceCycling)!,
+                            HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning)!,
+                            HKObjectType.quantityType(forIdentifier: .heartRate)!])
+
+        healthStore.requestAuthorization(toShare: allTypes, read: allTypes) { (success, error) in
+            if !success {
+                // Handle the error here.
+            }
+        }
     }
     
     func createCsv(csvStr: String){
@@ -42,8 +57,6 @@ class ViewController: UIViewController, WCSessionDelegate {
     }
     
     @IBAction func btnStartPressed(_ sender: UIButton) {
-//        isRecording = !isRecording
-        
         var instruction = "empty"
         if isRecording {
             instruction = "STOP"

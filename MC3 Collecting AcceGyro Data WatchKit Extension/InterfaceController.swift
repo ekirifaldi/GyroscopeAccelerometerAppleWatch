@@ -10,26 +10,31 @@ import WatchKit
 import Foundation
 import WatchConnectivity
 import CoreMotion
+import HealthKit
 
 
 class InterfaceController: WKInterfaceController {
     
     @IBOutlet weak var labelInfo: WKInterfaceLabel!
+    @IBOutlet weak var labelHeart: WKInterfaceLabel!
+    @IBOutlet weak var button: WKInterfaceButton!
     
     var wcSession : WCSession!
     var motion = CMMotionManager()
-    var dataAcceArray:[Dictionary<String, AnyObject>] =  Array()
-    var dataGyroArray:[Dictionary<String, AnyObject>] =  Array()
     var dataMotionArray:[Dictionary<String, AnyObject>] =  Array()
-    var locationManager = CLLocationManager()
+    
+    //For workout session
+    let healthStore = HKHealthStore()
+    var session: HKWorkoutSession?
+    var currentQuery: HKQuery?
+    
+    var isRecording = false
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
         print("awake")
         
         // Configure interface objects here.
-        
-        locationManager.allowsBackgroundLocationUpdates = true
     }
     
     override func willActivate() {
@@ -41,13 +46,18 @@ class InterfaceController: WKInterfaceController {
         wcSession.delegate = self
         wcSession.activate()
         
+        //Check HealthStore
+        guard HKHealthStore.isHealthDataAvailable() == true else {
+            print("Health Data Not Avaliable")
+            return
+        }
         
-//        locationManager.allowsBackgroundLocationUpdates = true
+        //        locationManager.allowsBackgroundLocationUpdates = true
         
-//        print(motion.isDeviceMotionAvailable ? "Motion available" : "Motion NOT available")
-//        print(motion.isGyroAvailable ? "Gyro available" : "Gyro NOT available")
-//        print(motion.isAccelerometerAvailable ? "Accel available" : "Accel NOT available")
-//        print(motion.isMagnetometerAvailable ? "Mag available" : "Mag NOT available")
+        //        print(motion.isDeviceMotionAvailable ? "Motion available" : "Motion NOT available")
+        //        print(motion.isGyroAvailable ? "Gyro available" : "Gyro NOT available")
+        //        print(motion.isAccelerometerAvailable ? "Accel available" : "Accel NOT available")
+        //        print(motion.isMagnetometerAvailable ? "Mag available" : "Mag NOT available")
     }
     
     override func didDeactivate() {
@@ -56,21 +66,25 @@ class InterfaceController: WKInterfaceController {
         super.didDeactivate()
     }
     
-//    @available(watchOSApplicationExtension 2.2, *)
-//    func session(session: WCSession, activationDidCompleteWithState activationState: WCSessionActivationState, error: NSError?) {
-//        if activationState == WCSessionActivationState.activated {
-//            NSLog("Activated")
-//        }
-//
-//        if activationState == WCSessionActivationState.inactive {
-//            NSLog("Inactive")
-//        }
-//
-//        if activationState == WCSessionActivationState.notActivated {
-//            NSLog("NotActivated")
-//        }
-//    }
-    
+    @IBAction func btnPressed() {
+        if(!isRecording){
+            let stopTitle = NSMutableAttributedString(string: "Stop Recording")
+            stopTitle.setAttributes([NSAttributedString.Key.foregroundColor: UIColor.red], range: NSMakeRange(0, stopTitle.length))
+            button.setAttributedTitle(stopTitle)
+            isRecording = true
+            startWorkout() //Start workout session/healthkit streaming
+        }else{
+            let exitTitle = NSMutableAttributedString(string: "Start Recording")
+            exitTitle.setAttributes([NSAttributedString.Key.foregroundColor: UIColor.green], range: NSMakeRange(0, exitTitle.length))
+            button.setAttributedTitle(exitTitle)
+            isRecording = false
+            //            healthStore.end(session!)
+            session?.stopActivity(with: Date())
+            labelHeart.setText("Heart Rate")
+            
+        }
+        
+    }
     
 }
 
@@ -86,16 +100,12 @@ extension InterfaceController: WCSessionDelegate {
         switch instruction {
         case "START":
             labelInfo.setText("Recording data...")
-//            startGyroscope()
-//            startAccelerometer()
             dataMotionArray.removeAll()
             startDeviceMotion()
             break
         case "STOP":
             labelInfo.setText("Stopping...")
             stopUpdates()
-//            print("SIZE: \(dataAcceArray.count) ===== \(dataGyroArray.count)")
-//            let csvStr = generateCsvFormat(acceArray: dataAcceArray, gyroArray: dataGyroArray)
             print("SIZE: \(dataMotionArray.count)")
             let csvStr = generateCsvFormat(motionArray: dataMotionArray)
             sendMessage(strMsg: csvStr)
@@ -116,54 +126,12 @@ extension InterfaceController: WCSessionDelegate {
 //MARK: - CoreMotion
 extension InterfaceController {
     
-    func startGyroscope(){
-        print("Start Gyroscope")
-        motion.gyroUpdateInterval = 0.5
-        motion.startGyroUpdates(to: OperationQueue.current!) {
-            (data, error) in
-            print("Gyro")
-            print(data as Any)
-            if let trueData =  data {
-                
-                var dct = Dictionary<String, AnyObject>()
-                dct.updateValue(self.getNowTime() as AnyObject, forKey: "GyroTime")
-                dct.updateValue(trueData.rotationRate.x as AnyObject, forKey: "GyroX")
-                dct.updateValue(trueData.rotationRate.y as AnyObject, forKey: "GyroY")
-                dct.updateValue(trueData.rotationRate.z as AnyObject, forKey: "GyroZ")
-                self.dataGyroArray.append(dct)
-            }
-        }
-        return
-    }
-    
-    
-    func startAccelerometer() {
-        print("Start Accelerometer")
-        motion.accelerometerUpdateInterval = 0.5
-        motion.startAccelerometerUpdates(to: OperationQueue.current!) {
-            (data, error) in
-            print("Acce")
-            print(data as Any)
-            if let trueData =  data {
-                
-                var dct = Dictionary<String, AnyObject>()
-                dct.updateValue(self.getNowTime() as AnyObject, forKey: "AcceTime")
-                dct.updateValue(trueData.acceleration.x as AnyObject, forKey: "AcceX")
-                dct.updateValue(trueData.acceleration.y as AnyObject, forKey: "AcceY")
-                dct.updateValue(trueData.acceleration.z as AnyObject, forKey: "AcceZ")
-                self.dataAcceArray.append(dct)
-            }
-        }
-        
-        return
-    }
-    
     func startDeviceMotion(){
         print("Start DeviceMotion")
-        motion.deviceMotionUpdateInterval  = 1.0 / 50.0
+        motion.deviceMotionUpdateInterval  = 1.0 / 75.0 //75 Hz
         motion.startDeviceMotionUpdates(to: OperationQueue.current!) {
             (data, error) in
-//            print("Motion")
+            //            print("Motion")
             print(data as Any)
             if let trueData =  data {
                 
@@ -184,24 +152,10 @@ extension InterfaceController {
     
     func stopUpdates() {
         if motion.isDeviceMotionAvailable {
-//            motion.stopGyroUpdates()
+            //            motion.stopGyroUpdates()
             motion.stopDeviceMotionUpdates()
-//            motion.stopAccelerometerUpdates()
+            //            motion.stopAccelerometerUpdates()
         }
-    }
-    
-    func generateCsvFormat(acceArray:[Dictionary<String, AnyObject>], gyroArray:[Dictionary<String, AnyObject>]) -> String {
-        var csvString = "\("Time"),\("Accelerometer X"),\("Accelerometer Y"),\("Accelerometer Z")\n"
-        for dct in acceArray {
-            csvString = csvString.appending("\(String(describing: dct["AcceTime"]!)),\(String(describing: dct["AcceX"]!)),\(String(describing: dct["AcceY"]!)),\(String(describing: dct["AcceZ"]!))\n")
-        }
-        
-        csvString = "\(csvString)\n\n\("TimeDMotion"),\("Gyroscope X"),\("Gyroscope Y"),\("Gyroscope Z")\n"
-        for dct2 in gyroArray {
-            csvString = csvString.appending("\(String(describing: dct2["GyroTime"]!)),\(String(describing: dct2["GyroX"]!)),\(String(describing: dct2["GyroY"]!)),\(String(describing: dct2["GyroZ"]!))\n")
-        }
-        
-        return csvString
     }
     
     func generateCsvFormat(motionArray:[Dictionary<String, AnyObject>]) -> String {
@@ -234,4 +188,77 @@ extension InterfaceController {
         let strDate = "\(hour):\(minutes):\(seconds).\(nanoseconds)"
         return strDate
     }
+}
+
+extension InterfaceController: HKWorkoutSessionDelegate{
+    func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {
+        print("State: \(toState.rawValue)")
+        switch toState {
+        case .running:
+            print(date)
+            if let query = heartRateQuery(date){
+                self.currentQuery = query
+                healthStore.execute(query)
+            }
+        //Execute Query
+        case .stopped: //sebelumnya .ended
+            //Stop Query
+            print("STOP: \(date)")
+            healthStore.stop(self.currentQuery!)
+            session?.end()
+            session = nil
+        default:
+            print("Unexpected state: \(toState.rawValue)")
+        }
+    }
+    
+    func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {
+        //Do Nothing
+    }
+    
+    func startWorkout(){
+        // If a workout has already been started, do nothing.
+        if (session != nil) {
+            return
+        }
+        // Configure the workout session.
+        let workoutConfiguration = HKWorkoutConfiguration()
+        workoutConfiguration.activityType = .badminton
+        workoutConfiguration.locationType = .indoor
+        
+        do {
+            session = try HKWorkoutSession(healthStore: healthStore, configuration: workoutConfiguration)
+            session?.delegate = self
+        } catch {
+            fatalError("Unable to create workout session")
+        }
+        
+        
+        session?.startActivity(with: Date())
+        print("Start Workout Session")
+    }
+    
+    func heartRateQuery(_ startDate: Date) -> HKQuery? {
+        let quantityType = HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.heartRate)
+        let datePredicate = HKQuery.predicateForSamples(withStart: startDate, end: nil, options: .strictEndDate)
+        let predicate = NSCompoundPredicate(andPredicateWithSubpredicates:[datePredicate])
+        
+        let heartRateQuery = HKAnchoredObjectQuery(type: quantityType!, predicate: predicate, anchor: nil, limit: Int(HKObjectQueryNoLimit)) { (query, sampleObjects, deletedObjects, newAnchor, error) -> Void in
+            //Do nothing
+        }
+        
+        heartRateQuery.updateHandler = {(query, samples, deleteObjects, newAnchor, error) -> Void in
+            guard let samples = samples as? [HKQuantitySample] else {return}
+            DispatchQueue.main.async {
+                guard let sample = samples.first else { return }
+                let value = sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
+                print("This line is executed!")
+                self.labelHeart.setText(String(UInt16(value))) //Update label
+            }
+            
+        }
+        
+        return heartRateQuery
+    }
+    
 }
