@@ -128,7 +128,7 @@ extension InterfaceController {
     
     func startDeviceMotion(){
         print("Start DeviceMotion")
-        motion.deviceMotionUpdateInterval  = 1.0 / 50.0
+        motion.deviceMotionUpdateInterval  = 1.0 / 75.0 //75 Hz
         motion.startDeviceMotionUpdates(to: OperationQueue.current!) {
             (data, error) in
             //            print("Motion")
