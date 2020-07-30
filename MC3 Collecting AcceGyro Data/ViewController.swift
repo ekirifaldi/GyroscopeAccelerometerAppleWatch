@@ -82,7 +82,7 @@ class ViewController: UIViewController, WCSessionDelegate {
 //    MARK: - WCSession
 
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        
+        print("activationDidCompleteWith")
         // Code
         
     }
@@ -96,13 +96,13 @@ class ViewController: UIViewController, WCSessionDelegate {
     }
     
     func sessionDidBecomeInactive(_ session: WCSession) {
-        
+        print("sessionDidBecomeInactive")
         // Code
         
     }
     
     func sessionDidDeactivate(_ session: WCSession) {
-        
+        print("sessionDidDeactivate")
         // Code
         
     }

@@ -64,6 +64,9 @@ class InterfaceController: WKInterfaceController {
         print("didDeactivate")
         // This method is called when watch view controller is no longer visible
         super.didDeactivate()
+//        DispatchQueue.global().async {
+//            self.wcSession.activate()
+//        }
     }
     
     @IBAction func btnPressed() {
@@ -144,7 +147,7 @@ extension InterfaceController {
                 dct.updateValue(trueData.rotationRate.y as AnyObject, forKey: "GyroY")
                 dct.updateValue(trueData.rotationRate.z as AnyObject, forKey: "GyroZ")
                 self.dataMotionArray.append(dct)
-                
+//                self.wcSession.activate()
             }
         }
         return
@@ -190,6 +193,7 @@ extension InterfaceController {
     }
 }
 
+//MARK: - WorkoutSession
 extension InterfaceController: HKWorkoutSessionDelegate{
     func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {
         print("State: \(toState.rawValue)")
