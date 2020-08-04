@@ -13,7 +13,7 @@ import CoreMotion
 import HealthKit
 
 
-class InterfaceController: WKInterfaceController {
+class InterfaceController: WKInterfaceController, WKExtensionDelegate {
     
     @IBOutlet weak var labelInfo: WKInterfaceLabel!
     @IBOutlet weak var labelHeart: WKInterfaceLabel!
@@ -27,6 +27,7 @@ class InterfaceController: WKInterfaceController {
     let healthStore = HKHealthStore()
     var session: HKWorkoutSession?
     var currentQuery: HKQuery?
+    var wkEkstension = WKExtension()
     
     var isRecording = false
     
@@ -46,6 +47,7 @@ class InterfaceController: WKInterfaceController {
         wcSession.delegate = self
         wcSession.activate()
         
+        
         //Check HealthStore
         guard HKHealthStore.isHealthDataAvailable() == true else {
             print("Health Data Not Avaliable")
@@ -58,6 +60,12 @@ class InterfaceController: WKInterfaceController {
         //        print(motion.isGyroAvailable ? "Gyro available" : "Gyro NOT available")
         //        print(motion.isAccelerometerAvailable ? "Accel available" : "Accel NOT available")
         //        print(motion.isMagnetometerAvailable ? "Mag available" : "Mag NOT available")
+    }
+    
+    func deviceOrientationDidChange() {
+        
+        let instance = WKExtension.shared().delegate as? ExtensionDelegate
+        print(instance..isAutorotating as Any)
     }
     
     override func didDeactivate() {
@@ -124,6 +132,17 @@ extension InterfaceController: WCSessionDelegate {
         // Code.
         
     }
+    
+    func sendMessage(strMsg: String){
+        let message = ["messageFromWatch":strMsg]
+        wcSession.sendMessage(message, replyHandler: nil) { (error) in
+            
+            print(error.localizedDescription)
+            
+        }
+        print("Sent")
+        labelInfo.setText("Waiting...")
+    }
 }
 
 //MARK: - CoreMotion
@@ -168,17 +187,6 @@ extension InterfaceController {
         }
         
         return csvString
-    }
-    
-    func sendMessage(strMsg: String){
-        let message = ["messageFromWatch":strMsg]
-        wcSession.sendMessage(message, replyHandler: nil) { (error) in
-            
-            print(error.localizedDescription)
-            
-        }
-        print("Sent")
-        labelInfo.setText("Waiting...")
     }
     
     func getNowTime() -> String {
@@ -266,3 +274,10 @@ extension InterfaceController: HKWorkoutSessionDelegate{
     }
     
 }
+
+//MARK: - WKExtensionDelegate
+//extension InterfaceController: WKExtensionDelegate {
+//    func deviceOrientationDidChange() {
+//        print(wkEkstension?.isAutorotating as Any)
+//    }
+//}
