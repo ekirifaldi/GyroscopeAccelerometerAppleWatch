@@ -47,6 +47,7 @@ class InterfaceController: WKInterfaceController, WKExtensionDelegate {
         wcSession.delegate = self
         wcSession.activate()
         
+        WKExtension.shared().isAutorotating = true
         
         //Check HealthStore
         guard HKHealthStore.isHealthDataAvailable() == true else {
@@ -63,10 +64,14 @@ class InterfaceController: WKInterfaceController, WKExtensionDelegate {
     }
     
     func deviceOrientationDidChange() {
-        
-        let instance = WKExtension.shared().delegate as? ExtensionDelegate
-        print(instance..isAutorotating as Any)
+        print("ROTATE: \(WKExtension.shared().isAutorotated)")
     }
+    
+//    func deviceOrientationDidChange() {
+//
+////        let instance = WKExtension.shared().delegate as? ExtensionDelegate
+//        print(WKExtension.shared().isAutorotating)
+//    }
     
     override func didDeactivate() {
         print("didDeactivate")
