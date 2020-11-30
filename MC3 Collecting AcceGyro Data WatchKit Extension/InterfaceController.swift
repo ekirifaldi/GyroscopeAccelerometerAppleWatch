@@ -13,7 +13,7 @@ import CoreMotion
 import HealthKit
 
 
-class InterfaceController: WKInterfaceController, WKExtensionDelegate {
+class InterfaceController: WKInterfaceController {
     
     @IBOutlet weak var labelInfo: WKInterfaceLabel!
     @IBOutlet weak var labelHeart: WKInterfaceLabel!
@@ -27,13 +27,11 @@ class InterfaceController: WKInterfaceController, WKExtensionDelegate {
     let healthStore = HKHealthStore()
     var session: HKWorkoutSession?
     var currentQuery: HKQuery?
-    var wkEkstension = WKExtension()
     
     var isRecording = false
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
-        print("awake")
         
         // Configure interface objects here.
     }
@@ -41,13 +39,10 @@ class InterfaceController: WKInterfaceController, WKExtensionDelegate {
     override func willActivate() {
         // This method is called when watch view controller is about to be visible to user
         super.willActivate()
-        print("willActivate")
         
         wcSession = WCSession.default
         wcSession.delegate = self
         wcSession.activate()
-        
-        WKExtension.shared().isAutorotating = true
         
         //Check HealthStore
         guard HKHealthStore.isHealthDataAvailable() == true else {
@@ -63,19 +58,7 @@ class InterfaceController: WKInterfaceController, WKExtensionDelegate {
         //        print(motion.isMagnetometerAvailable ? "Mag available" : "Mag NOT available")
     }
     
-    func deviceOrientationDidChange() {
-        print("ROTATE: \(WKExtension.shared().isAutorotated)")
-    }
-    
-//    func deviceOrientationDidChange() {
-//
-////        let instance = WKExtension.shared().delegate as? ExtensionDelegate
-//        print(WKExtension.shared().isAutorotating)
-//    }
-    
     override func didDeactivate() {
-        print("didDeactivate")
-        // This method is called when watch view controller is no longer visible
         super.didDeactivate()
 //        DispatchQueue.global().async {
 //            self.wcSession.activate()
@@ -110,9 +93,6 @@ extension InterfaceController: WCSessionDelegate {
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
         
         let instruction = message["messageFromIos"] as! String
-        
-        print(instruction)
-        
         switch instruction {
         case "START":
             labelInfo.setText("Recording data...")
@@ -122,7 +102,6 @@ extension InterfaceController: WCSessionDelegate {
         case "STOP":
             labelInfo.setText("Stopping...")
             stopUpdates()
-            print("SIZE: \(dataMotionArray.count)")
             let csvStr = generateCsvFormat(motionArray: dataMotionArray)
             sendMessage(strMsg: csvStr)
             dataMotionArray.removeAll()
@@ -137,28 +116,15 @@ extension InterfaceController: WCSessionDelegate {
         // Code.
         
     }
-    
-    func sendMessage(strMsg: String){
-        let message = ["messageFromWatch":strMsg]
-        wcSession.sendMessage(message, replyHandler: nil) { (error) in
-            
-            print(error.localizedDescription)
-            
-        }
-        print("Sent")
-        labelInfo.setText("Waiting...")
-    }
 }
 
 //MARK: - CoreMotion
 extension InterfaceController {
     
     func startDeviceMotion(){
-        print("Start DeviceMotion")
         motion.deviceMotionUpdateInterval  = 1.0 / 75.0 //75 Hz
         motion.startDeviceMotionUpdates(to: OperationQueue.current!) {
             (data, error) in
-            //            print("Motion")
             print(data as Any)
             if let trueData =  data {
                 
@@ -194,6 +160,16 @@ extension InterfaceController {
         return csvString
     }
     
+    func sendMessage(strMsg: String){
+        let message = ["messageFromWatch":strMsg]
+        wcSession.sendMessage(message, replyHandler: nil) { (error) in
+            
+            print(error.localizedDescription)
+            
+        }
+        labelInfo.setText("Waiting...")
+    }
+    
     func getNowTime() -> String {
         let date = Date()
         let calendar = Calendar.current
@@ -209,7 +185,6 @@ extension InterfaceController {
 //MARK: - WorkoutSession
 extension InterfaceController: HKWorkoutSessionDelegate{
     func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {
-        print("State: \(toState.rawValue)")
         switch toState {
         case .running:
             print(date)
@@ -220,7 +195,6 @@ extension InterfaceController: HKWorkoutSessionDelegate{
         //Execute Query
         case .stopped: //sebelumnya .ended
             //Stop Query
-            print("STOP: \(date)")
             healthStore.stop(self.currentQuery!)
             session?.end()
             session = nil
@@ -252,7 +226,6 @@ extension InterfaceController: HKWorkoutSessionDelegate{
         
         
         session?.startActivity(with: Date())
-        print("Start Workout Session")
     }
     
     func heartRateQuery(_ startDate: Date) -> HKQuery? {
@@ -269,7 +242,6 @@ extension InterfaceController: HKWorkoutSessionDelegate{
             DispatchQueue.main.async {
                 guard let sample = samples.first else { return }
                 let value = sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
-                print("This line is executed!")
                 self.labelHeart.setText(String(UInt16(value))) //Update label
             }
             
@@ -279,10 +251,3 @@ extension InterfaceController: HKWorkoutSessionDelegate{
     }
     
 }
-
-//MARK: - WKExtensionDelegate
-//extension InterfaceController: WKExtensionDelegate {
-//    func deviceOrientationDidChange() {
-//        print(wkEkstension?.isAutorotating as Any)
-//    }
-//}

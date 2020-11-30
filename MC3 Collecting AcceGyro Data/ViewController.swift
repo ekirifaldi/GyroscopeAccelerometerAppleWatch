@@ -44,7 +44,6 @@ class ViewController: UIViewController, WCSessionDelegate {
         do {
             let path = try fileManager.url(for: .documentDirectory, in: .allDomainsMask, appropriateFor: nil, create: false)
             let fileURL = path.appendingPathComponent("CSVRecAcceGyro.csv")
-            print(fileURL)
             try csvStr.write(to: fileURL, atomically: true, encoding: .utf8)
             let items = [fileURL]
             let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
@@ -66,8 +65,6 @@ class ViewController: UIViewController, WCSessionDelegate {
             button.setTitle("STOP", for: .normal)
         }
         
-        print("\(isRecording) - \(instruction)")
-        
         let message = ["messageFromIos":instruction]
         
         isRecording = !isRecording
@@ -82,7 +79,6 @@ class ViewController: UIViewController, WCSessionDelegate {
 //    MARK: - WCSession
 
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        print("activationDidCompleteWith")
         // Code
         
     }
@@ -96,13 +92,11 @@ class ViewController: UIViewController, WCSessionDelegate {
     }
     
     func sessionDidBecomeInactive(_ session: WCSession) {
-        print("sessionDidBecomeInactive")
         // Code
         
     }
     
     func sessionDidDeactivate(_ session: WCSession) {
-        print("sessionDidDeactivate")
         // Code
         
     }
